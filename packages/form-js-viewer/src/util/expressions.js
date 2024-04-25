@@ -1,13 +1,51 @@
+import { get } from 'min-dash';
 import { wrapObjectKeysWithUnderscores } from './simple';
 
 /**
- * Transform a LocalExpressionContext object into a usable FEEL context.
+ * Builds an expression context object based on the expression context information.
  *
- * @param {Object} context - The LocalExpressionContext object.
+ * @param {Object} expressionContextInfo - The expression context information.
+ * @param {Object} options - The options to use.
+ * @param {Object} [ options.overrideData ] - The override data to use.
+ * @returns {Object} The expression context object.
+ */
+export function buildExpressionContext(expressionContextInfo, options = {}) {
+  const rootData = options.overrideData || expressionContextInfo.data;
+  const segments = expressionContextInfo.segments || [];
+
+  let workingContext = wrapExpressionContext({
+    data: rootData,
+    this: rootData,
+    parent: null,
+    i: [],
+  });
+
+  for (var x = 0; x < segments.length; x++) {
+    const segment = segments[x];
+    const pathArray = segment.path.split('.');
+
+    const currentData = get(workingContext.data, pathArray);
+    const indexedData = segment.index !== undefined ? currentData[segment.index] : currentData;
+
+    workingContext = wrapExpressionContext({
+      data: rootData,
+      this: indexedData,
+      parent: workingContext,
+      i: [...workingContext.i, segment.index + 1],
+    });
+  }
+
+  return workingContext;
+}
+
+/**
+ * Wraps an expresson context object into a usable FEEL context.
+ *
+ * @param {Object} context - The ExpressionContext object.
  * @returns {Object} The usable FEEL context.
  */
 
-export function buildExpressionContext(context) {
+export function wrapExpressionContext(context) {
   const { data, ...specialContextKeys } = context;
 
   return {
