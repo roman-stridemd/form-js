@@ -77,11 +77,13 @@ export function Taglist(props) {
     }
 
     props.onChange({ value: [...values, value] });
+    inputRef.current.blur();
   };
 
   const deselectValue = (value) => {
     const newValues = values.filter((v) => !isEqual(v, value));
     props.onChange({ value: newValues });
+    inputRef.current.blur();
   };
 
   const onInputChange = ({ target }) => {

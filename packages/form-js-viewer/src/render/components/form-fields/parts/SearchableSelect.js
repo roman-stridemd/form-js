@@ -55,6 +55,7 @@ export function SearchableSelect(props) {
     (option) => {
       setFilter((option && option.label) || '');
       props.onChange({ value: (option && option.value) || null });
+      searchbarRef.current.blur();
     },
     [props],
   );

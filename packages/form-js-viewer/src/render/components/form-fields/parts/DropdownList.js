@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'preact/hooks'
 import { useKeyDownAction } from '../../../hooks/useKeyDownAction';
 
 const DEFAULT_LABEL_GETTER = (value) => value;
-const NOOP = () => {};
+const NOOP = () => { };
 
 export function DropdownList(props) {
   const {
@@ -27,9 +27,23 @@ export function DropdownList(props) {
   const changeFocusedValueIndex = useCallback(
     (delta) => {
       setFocusedValueIndex((x) => Math.min(Math.max(0, x + delta), values.length - 1));
+      // @ts-ignore
+      if (window.popLog) {
+        // @ts-ignore
+        window.popLog('new focued item: ' + focusedItem.value);
+      }
     },
     [values.length],
   );
+
+  const selectValue = (value) => {
+    // @ts-ignore
+    if (window.popLog) {
+      // @ts-ignore
+      window.popLog('new value selected: ' + value.value);
+    }
+    onValueSelected(value);
+  };
 
   useEffect(() => {
     if (focusedValueIndex === 0) return;
@@ -67,7 +81,7 @@ export function DropdownList(props) {
     'Enter',
     () => {
       if (focusedItem) {
-        onValueSelected(focusedItem);
+        selectValue(focusedItem);
       }
     },
     listenerElement,
@@ -111,7 +125,7 @@ export function DropdownList(props) {
               class={classNames('fjs-dropdownlist-item', { focused: focusedValueIndex === i })}
               onMouseMove={mouseControl ? undefined : (e) => onMouseMovedInKeyboardMode(e, i)}
               onMouseEnter={mouseControl ? () => setFocusedValueIndex(i) : undefined}
-              onMouseDown={(e) => onValueSelected(v)}>
+              onMouseDown={(e) => selectValue(v)}>
               {getLabel(v)}
             </div>
           );

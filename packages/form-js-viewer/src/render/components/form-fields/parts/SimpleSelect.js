@@ -34,6 +34,7 @@ export function SimpleSelect(props) {
   const setValue = useCallback(
     (option) => {
       props.onChange({ value: (option && option.value) || null });
+      inputRef.current.blur();
     },
     [props],
   );
